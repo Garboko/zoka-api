@@ -1,0 +1,12 @@
+name: "Auto Label PR"
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+jobs:
+  Labeler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/Labeler@v4
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
