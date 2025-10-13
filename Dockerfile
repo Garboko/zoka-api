@@ -10,15 +10,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN groupadd -r zoka && useradd -r -g zoka zoka
 
 COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    apt-get purge -y --auto-remove gcc
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-RUN chown -R zoka:zoka /app
+COPY --chown=zoka:zoka . .
 
 USER zoka
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
