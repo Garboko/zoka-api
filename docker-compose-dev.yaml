@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  zoka-database:
+    image: postgres:16-alpine
+    container_name: zoka-database
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - zoka-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zoka-network
+
+  zoka-api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: zoka-api-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - DATABASE_URL=postgresql+asyncpg://${DATABASE_USER}:${DATABASE_PASSWORD}@zoka-database:5432/${DATABASE_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - LOG_LEVEL=${LOG_LEVEL}
+    volumes:
+      - ./app:/app/app
+      - ./tests:/app/tests
+      - ./alembic:/app/alembic
+      - ./logs:/app/logs
+    depends_on:
+      zoka-database:
+        condition: service_healthy
+    networks:
+      - zoka-network
+
+  zoka-adminer:
+    image: adminer
+    container_name: zoka-adminer
+    environment:
+      - ADMINER_DEFAULT_DB_DRIVER=pgsql
+      - ADMINER_DEFAULT_DB_HOST=zoka-database
+      - ADMINER_DEFAULT_DB_USER=${DATABASE_USER}
+      - ADMINER_DEFAULT_DB_PASSWORD=${DATABASE_PASSWORD}
+      - ADMINER_DEFAULT_DB_NAME=${DATABASE_NAME}
+    ports:
+      - "8080:8080"
+    depends_on:
+      zoka-database:
+        condition: service_healthy
+    networks:
+      - zoka-network
+
+volumes:
+  zoka-db-data:
+
+networks:
+  zoka-network:
+    driver: bridge
