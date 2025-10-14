@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  zoka-database:
+    image: postgres:16-alpine
+    container_name: zoka-database-prod
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - zoka-db-data-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - zoka-network
+
+  zoka-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zoka-api-prod
+    expose:
+      - "8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://${DATABASE_USER}:${DATABASE_PASSWORD}@zoka-database:5432/${DATABASE_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - LOG_LEVEL=${LOG_LEVEL}
+    volumes:
+      - ./logs:/app/logs
+    env_file: .env
+    depends_on:
+      zoka-database:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - zoka-network
+
+  zoka-nginx:
+    image: nginx:alpine
+    container_name: zoka-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - zoka-api
+    restart: unless-stopped
+    networks:
+      - zoka-network
+
+volumes:
+  zoka-db-data-prod:
+
+networks:
+  zoka-network:
+    driver: bridge

@@ -39,6 +39,7 @@ services:
       - ./tests:/app/tests
       - ./alembic:/app/alembic
       - ./logs:/app/logs
+    env_file: .env
     depends_on:
       zoka-database:
         condition: service_healthy
