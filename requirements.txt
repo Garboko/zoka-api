@@ -1,0 +1,36 @@
+# FastAPI et serveur
+fastapi==0.119.0
+uvicorn[standard]==0.37.0
+python-multipart==0.0.20
+
+# Base de données
+sqlalchemy[asyncio]==2.0.44
+asyncpg==0.30.0
+alembic==1.17.0
+
+# Validation et configuration
+pydantic==2.12.1
+pydantic-settings==2.11.0
+email-validator==2.3.0
+python-dateutil==2.9.0
+
+# Sécurité et authentification
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+bcrypt==5.0.0
+
+# Export de données
+openpyxl==3.1.5
+xlsxwriter==3.2.9
+pandas==2.3.3
+
+# Manipulation de fichiers et images
+Pillow==11.3.0
+aiofiles==25.1.0
+
+# HTTP client
+httpx==0.28.1
+
+# Utilitaires
+python-dotenv==0.0.1
+pytz==2025.2
