@@ -3,6 +3,7 @@ from sqlalchemy import String, DateTime, ForeignKey, JSON, Integer, Boolean, Tex
 from sqlalchemy.sql import func
 from typing import Optional
 from app.database.session import Base
+from sqlalchemy import Index
 
 class APIToken(Base):
     __tablename__ = "api_tokens"
@@ -30,7 +31,7 @@ class APILog(Base):
     endpoint: Mapped[str] = mapped_column(String(500), nullable=False) 
     method: Mapped[str] = mapped_column(String(10), nullable=False)  
     status_code: Mapped[int] = mapped_column(Integer, nullable=False)
-    response_time: Mapped[float] = mapped_column(Integer)  
+    response_time: Mapped[float] = mapped_column(Float)  
     user_agent: Mapped[Optional[str]] = mapped_column(Text)
     ip_address: Mapped[Optional[str]] = mapped_column(String(45))
     request_size: Mapped[Optional[int]] = mapped_column(Integer)  
