@@ -36,7 +36,7 @@ class ReportTemplate(Base):
     updated_at: Mapped[Optional[DateTime]] = mapped_column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    project = relationship("Project")
+    project = relationship("Project", back_populates="report_templates")
     creator = relationship("User")
     report_jobs = relationship("ReportJob", back_populates="template", cascade="all, delete-orphan")
 
