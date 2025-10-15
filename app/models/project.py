@@ -35,6 +35,9 @@ class Project(Base):
     visibility: Mapped[ProjectVisibility] = mapped_column(Enum(ProjectVisibility), default=ProjectVisibility.private)
     
     # Relationships
+    report_templates = relationship("ReportTemplate", back_populates="project")
+    webhooks = relationship("Webhook", back_populates="project")
+    analytics_dashboards = relationship("AnalyticsDashboard", back_populates="project")
     organization = relationship("Organization", back_populates="projects")
     creator = relationship("User", back_populates="created_projects")
     forms = relationship("Form", back_populates="project")

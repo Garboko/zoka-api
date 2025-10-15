@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, DateTime, ForeignKey, Enum
+from sqlalchemy import String, DateTime, ForeignKey, Enum, UniqueConstraint
 from sqlalchemy.sql import func
 from app.database.session import Base
 import enum

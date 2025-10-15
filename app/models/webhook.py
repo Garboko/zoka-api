@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Text, DateTime, ForeignKey, JSON, Boolean
+from sqlalchemy import String, Text, DateTime, ForeignKey, JSON, Boolean, Integer, Float, Index
 from sqlalchemy.sql import func
 from typing import Optional
 from app.database.session import Base
