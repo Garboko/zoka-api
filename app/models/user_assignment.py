@@ -23,3 +23,6 @@ class UserAssignment(Base):
     user = relationship("User", back_populates="user_assignments")
     project = relationship("Project", back_populates="user_assignments")
     assigner = relationship("User", foreign_keys=[assigned_by])
+    __table_args__ = (
+    UniqueConstraint('user_id', 'project_id', name='uq_user_project'),
+    )

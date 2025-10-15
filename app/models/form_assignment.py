@@ -26,3 +26,6 @@ class FormAssignment(Base):
     form = relationship("Form", back_populates="form_assignments")
     user = relationship("User", back_populates="form_assignments")
     assigner = relationship("User", foreign_keys=[assigned_by])
+    __table_args__ = (
+    UniqueConstraint('user_id', 'form_id', name='uq_user_form'),
+    )
