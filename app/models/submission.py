@@ -30,3 +30,9 @@ class Submission(Base):
     form = relationship("Form", back_populates="submissions")
     submitter = relationship("User", back_populates="submissions")
     media_files = relationship("MediaFile", back_populates="submission")
+    __table_args__ = (
+        Index('idx_submission_form_status', 'form_id', 'status'),
+        Index('idx_submission_submitter', 'submitted_by'),
+        Index('idx_submission_date', 'submitted_at'),
+        Index('idx_submission_location', 'latitude', 'longitude'),  
+    )
