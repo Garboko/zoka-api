@@ -5,12 +5,13 @@ from datetime import timedelta, datetime
 from uuid import uuid4
 
 from app.database.session import get_db
-from app.schemas.users import UserCreate, UserResponse, UserLogin
+from app.schemas.users import UserCreate, UserResponse, UserLogin, UserUpdate
 from app.crud import users as crud_users
 from app.crud import email_verifications as crud_email_verifications
 from app.core.security import create_access_token
 from app.core.config import settings
-from app.schemas.email_verifications import EmailVerificationCreate
+from app.schemas.email_verifications import EmailVerificationCreate, EmailVerificationUpdate
+from app.core.dependencies import get_current_active_user  # AJOUTER CETTE LIGNE
 
 router = APIRouter()
 
@@ -90,17 +91,17 @@ def verify_email(token: str, db: Session = Depends(get_db)):
             detail="User not found"
         )
     
-    from app.schemas.users import UserUpdate
     user_update = UserUpdate(email_verified=True, is_active=True)
     crud_users.update(db, db_obj=user, obj_in=user_update)
     
-    from app.schemas.email_verifications import EmailVerificationUpdate
     verification_update = EmailVerificationUpdate(used=True)
     crud_email_verifications.update(db, db_obj=verification, obj_in=verification_update)
     
     return {"message": "Email verified successfully"}
 
 @router.get("/me", response_model=UserResponse)
-def read_users_me(db: Session = Depends(get_db), current_user = Depends(get_current_active_user)):
-    from app.core.dependencies import get_current_active_user
+def read_users_me(
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
     return current_user
