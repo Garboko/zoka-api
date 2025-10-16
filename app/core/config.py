@@ -1,4 +1,4 @@
-from pydantic-settings import BaseSettings
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     PROJECT_NAME: str
@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     VERSION: str
     API_V1_STR: str
     DATABASE_URL: str
+    ALEMBIC_URL: str
     SECRET_KEY: str
     ALGORITHM: str 
     ACCESS_TOKEN_EXPIRE_MINUTES: int
