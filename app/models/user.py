@@ -1,34 +1,24 @@
+from sqlalchemy import String, Boolean, DateTime, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Text, Integer, DateTime, ForeignKey, Boolean, Enum
-from sqlalchemy.sql import func
-from typing import Optional, List
+from datetime import datetime
 from app.database.session import Base
-import enum
-
-class UserRole(enum.Enum):
-    admin = "admin"
-    manager = "manager"
-    enumerator = "enumerator"
 
 class User(Base):
     __tablename__ = "users"
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, index=True)
-    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    full_name: Mapped[str] = mapped_column(String(150), nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    first_name: Mapped[Optional[str]] = mapped_column(String(100))
-    last_name: Mapped[Optional[str]] = mapped_column(String(100))
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[Optional[DateTime]] = mapped_column(DateTime(timezone=True), onupdate=func.now())
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+    email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    verification_token: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
-    owned_organizations = relationship("Organization", back_populates="owner")
-    created_projects = relationship("Project", back_populates="creator")
-    user_assignments = relationship("UserAssignment", back_populates="user")
-    form_assignments = relationship("FormAssignment", back_populates="user")
-    submissions = relationship("Submission", back_populates="submitter")
-    audit_logs = relationship("AuditLog", back_populates="user")
-    sync_statuses = relationship("SyncStatus", back_populates="user")
+    enumerators: Mapped[list["Enumerator"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    projects: Mapped[list["Project"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    forms: Mapped[list["Form"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    email_verifications: Mapped[list["EmailVerification"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    audit_logs: Mapped[list["AuditLog"]] = relationship(back_populates="user")
+    submission_reviews: Mapped[list["SubmissionReview"]] = relationship(back_populates="reviewer")
