@@ -1,34 +1,27 @@
+from sqlalchemy import String, Boolean, DateTime, ForeignKey, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Text, DateTime, ForeignKey, Enum, Boolean, JSON
-from sqlalchemy.sql import func
-from typing import Optional, List
+from datetime import datetime
 from app.database.session import Base
-import enum
-
-class FormStatus(enum.Enum):
-    draft = "draft"
-    published = "published"
-    archived = "archived"
 
 class Form(Base):
     __tablename__ = "forms"
     
     id: Mapped[str] = mapped_column(String(36), primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text)
-    project_id: Mapped[str] = mapped_column(String(36), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
-    form_definition: Mapped[dict] = mapped_column(JSON, nullable=False)
-    version: Mapped[str] = mapped_column(String(50), nullable=False)
-    created_by: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[Optional[DateTime]] = mapped_column(DateTime(timezone=True), onupdate=func.now())
-    status: Mapped[FormStatus] = mapped_column(Enum(FormStatus), nullable=False)
-    allow_offline: Mapped[bool] = mapped_column(Boolean, default=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    project_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("projects.id", ondelete="SET NULL"), index=True, nullable=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    original_file: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    converted_file: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    public_access: Mapped[bool] = mapped_column(Boolean, default=False)
+    uuid_link: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
-    project = relationship("Project", back_populates="forms")
-    creator = relationship("User")
-    form_versions = relationship("FormVersion", back_populates="form")
-    submissions = relationship("Submission", back_populates="form")
-    form_fields = relationship("FormField", back_populates="form")
-    form_assignments = relationship("FormAssignment", back_populates="form")
+    user: Mapped["User"] = relationship(back_populates="forms")
+    project: Mapped["Project"] = relationship(back_populates="forms")
+    form_accesses: Mapped[list["FormAccess"]] = relationship(back_populates="form", cascade="all, delete-orphan")
+    submissions: Mapped[list["Submission"]] = relationship(back_populates="form", cascade="all, delete-orphan")
+    form_versions: Mapped[list["FormVersion"]] = relationship(back_populates="form", cascade="all, delete-orphan")
+    form_statistics: Mapped[list["FormStatistic"]] = relationship(back_populates="form", cascade="all, delete-orphan")
