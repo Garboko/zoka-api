@@ -56,7 +56,7 @@ services:
       - ADMINER_DEFAULT_DB_PASSWORD=${DATABASE_PASSWORD}
       - ADMINER_DEFAULT_DB_NAME=${DATABASE_NAME}
     ports:
-      - "8080:8080"
+      - "5000:8080"
     depends_on:
       zoka-database:
         condition: service_healthy
