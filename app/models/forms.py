@@ -1,6 +1,6 @@
 from sqlalchemy import String, Boolean, DateTime, ForeignKey, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from app.database.session import Base
 
 class Form(Base):
@@ -16,8 +16,8 @@ class Form(Base):
     public_access: Mapped[bool] = mapped_column(Boolean, default=False)
     uuid_link: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     version: Mapped[int] = mapped_column(Integer, default=1)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     
     user: Mapped["User"] = relationship(back_populates="forms")
     project: Mapped["Project"] = relationship(back_populates="forms")
