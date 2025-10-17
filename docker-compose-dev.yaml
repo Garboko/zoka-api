@@ -20,6 +20,26 @@ services:
     networks:
       - zoka-network
 
+  zoka-minio:
+    image: minio/minio:latest
+    container_name: zoka-minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"  
+      - "9001:9001" 
+    volumes:
+      - zoka-minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - zoka-network
+
   zoka-api-dev:
     build:
       context: .
@@ -29,11 +49,25 @@ services:
       - "8000:8000"
     environment:
       - ENVIRONMENT=development
-      - DATABASE_URL=postgresql+asyncpg://${DATABASE_USER}:${DATABASE_PASSWORD}@zoka-database:5432/${DATABASE_NAME}
+      - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY=${SECRET_KEY}
       - ALGORITHM=${ALGORITHM}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
       - LOG_LEVEL=${LOG_LEVEL}
+      - MINIO_ENDPOINT=zoka-minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+      - MINIO_USE_SSL=false
+      - MAIL_SERVER=${MAIL_SERVER}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_FROM=${MAIL_FROM}
+      - MAIL_STARTTLS=${MAIL_STARTTLS}
+      - MAIL_SSL_TLS=${MAIL_SSL_TLS}
+      - MAIL_USE_CREDENTIALS=${MAIL_USE_CREDENTIALS}
+      - FRONTEND_URL=${FRONTEND_URL}
     volumes:
       - ./app:/app/app
       - ./tests:/app/tests
@@ -43,6 +77,11 @@ services:
     depends_on:
       zoka-database:
         condition: service_healthy
+      zoka-minio:
+        condition: service_healthy
+      zoka-mailhog:
+        condition: service_started
+
     networks:
       - zoka-network
 
@@ -63,8 +102,18 @@ services:
     networks:
       - zoka-network
 
+  zoka-mailhog:
+      image: mailhog/mailhog:latest
+      container_name: zoka-mailhog
+      ports:
+        - "1025:1025"  
+        - "8025:8025"  
+      networks:
+        - zoka-network
+
 volumes:
   zoka-db-data:
+  zoka-minio-data:
 
 networks:
   zoka-network:
