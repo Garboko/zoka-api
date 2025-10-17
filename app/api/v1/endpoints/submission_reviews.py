@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.database.session import get_db
 from app.schemas.submission_reviews import SubmissionReviewCreate, SubmissionReviewResponse, SubmissionReviewUpdate
@@ -105,7 +105,7 @@ def update_submission_review(
         )
     
     if not review_in.reviewed_at:
-        review_in.reviewed_at = datetime.utcnow()
+        review_in.reviewed_at = datetime.now(timezone.utc)
     
     review = crud_submission_reviews.update(db, db_obj=review, obj_in=review_in)
     return review
