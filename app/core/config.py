@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 
 class Settings(BaseSettings):
     PROJECT_NAME: str
@@ -39,11 +40,12 @@ class Settings(BaseSettings):
     # Frontend URL for email links
     FRONTEND_URL: str = "http://localhost:3000"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
-        extra = "ignore"
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore"
+    )
 
 settings = Settings()
 
