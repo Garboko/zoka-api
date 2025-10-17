@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from uuid import uuid4
 
 from app.database.session import get_db
@@ -32,7 +32,7 @@ async def register(user_in: UserCreate, db: Session = Depends(get_db)):
     verification = EmailVerificationCreate(
         user_id=user.id,
         token=verification_token,
-        expires_at=datetime.utcnow() + timedelta(hours=24)
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=24)
     )
     crud_email_verifications.create(db, obj_in=verification)
     
@@ -89,7 +89,7 @@ def verify_email(token: str, db: Session = Depends(get_db)):
             detail="Token already used"
         )
     
-    if verification.expires_at < datetime.utcnow():
+    if verification.expires_at < datetime.now(timezone.utc):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Token expired"
