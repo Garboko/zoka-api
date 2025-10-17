@@ -1,6 +1,6 @@
 from sqlalchemy import String, Integer, DateTime, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from app.database.session import Base
 
 class FormVersion(Base):
@@ -12,6 +12,6 @@ class FormVersion(Base):
     xls_file_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
     xml_file_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
     changelog: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
     
     form: Mapped["Form"] = relationship(back_populates="form_versions")
