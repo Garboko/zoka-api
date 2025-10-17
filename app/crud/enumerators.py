@@ -11,6 +11,9 @@ def get(db: Session, id: str) -> Optional[Enumerator]:
 def get_by_user_id(db: Session, user_id: str) -> List[Enumerator]:
     return db.query(Enumerator).filter(Enumerator.user_id == user_id).all()
 
+def get_by_email(db: Session, email: str) -> Optional[Enumerator]:
+    return db.query(Enumerator).filter(Enumerator.email == email).first()
+
 def get_multi(db: Session, skip: int = 0, limit: int = 100) -> List[Enumerator]:
     return db.query(Enumerator).offset(skip).limit(limit).all()
 
