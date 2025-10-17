@@ -1,6 +1,6 @@
 from sqlalchemy import String, BigInteger, DateTime, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from app.database.session import Base
 
 class AuditLog(Base):
@@ -15,7 +15,7 @@ class AuditLog(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)
     user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
     
     user: Mapped["User"] = relationship(back_populates="audit_logs")
     enumerator: Mapped["Enumerator"] = relationship(back_populates="audit_logs")
