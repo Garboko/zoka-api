@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     PROJECT_NAME: str
     PROJECT_DESCRIPTION: str
+    ENVIRONMENT: str = "development"
     VERSION: str
     API_V1_STR: str
     DATABASE_URL: str
@@ -20,6 +21,8 @@ class Settings(BaseSettings):
     MINIO_SECRET_KEY: str 
     MINIO_BUCKET_NAME: str 
     MINIO_USE_SSL: bool = False
+    MINIO_SERVER_URL: str = "http://localhost:9000"
+    MINIO_DOMAIN: str
 
     # Email Configuration
     MAIL_USERNAME: str = ""
