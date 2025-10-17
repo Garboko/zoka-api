@@ -67,7 +67,7 @@ class StorageService:
                 object_name,
                 expires=timedelta(seconds=expires)
             )
-            return url
+            return url.replace(settings.MINIO_ENDPOINT, settings.MINIO_EXTERNAL_ENDPOINT)
         except S3Error as e:
             raise Exception(f"Error generating URL: {e}")
     
