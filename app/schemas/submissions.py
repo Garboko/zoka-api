@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional, Dict, Any
 
@@ -20,6 +20,5 @@ class SubmissionResponse(SubmissionBase):
     submitted_at: datetime
     validated: bool
     synced: bool
-
-    class Config:
-        from_attributes = True
+    
+    model_config = ConfigDict(from_attributes=True)
