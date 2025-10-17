@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list
 
     # MinIO Configuration
-    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ENDPOINT: str = "zoka-minio:9000"
+    MINIO_EXTERNAL_ENDPOINT: str = "localhost:9000"
     MINIO_ACCESS_KEY: str 
     MINIO_SECRET_KEY: str 
     MINIO_BUCKET_NAME: str 
@@ -23,7 +24,7 @@ class Settings(BaseSettings):
     # Email Configuration
     MAIL_USERNAME: str = ""
     MAIL_PASSWORD: str = ""
-    MAIL_FROM: str = "noreply@zoka.com"
+    MAIL_FROM: str = "noreply@zokatoolbox.com"
     MAIL_FROM_NAME: str = "Zoka Platform"
     MAIL_PORT: int = 587
     MAIL_SERVER: str = ""
