@@ -2,6 +2,7 @@ from minio import Minio
 from minio.error import S3Error
 from io import BytesIO
 from typing import Optional
+from datetime import timedelta  
 import os
 from app.core.config import settings
 
@@ -64,7 +65,7 @@ class StorageService:
             url = self.client.presigned_get_object(
                 self.bucket_name,
                 object_name,
-                expires=expires
+                expires=timedelta(seconds=expires)
             )
             return url
         except S3Error as e:
