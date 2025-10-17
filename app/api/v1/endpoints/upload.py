@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from uuid import uuid4
-
+from fastapi.responses import StreamingResponse
+from io import BytesIO
 from app.database.session import get_db
 from app.services.storage import storage_service
 from app.services.xlsform import xlsform_service
@@ -147,20 +148,46 @@ async def upload_media(
         "file_url": storage_service.get_file_url(media_path)
     }
 
-@router.get("/download/{bucket}/{path:path}")
+@router.get("/download/{path:path}")
 async def download_file(
-    bucket: str,
     path: str,
     current_user: User = Depends(get_current_active_user)
 ):
-    object_name = f"{path}"
-    
-    if not storage_service.file_exists(object_name):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found"
+    """
+    Télécharge un fichier directement depuis MinIO
+    path exemple: forms/xxx/file.xlsx ou xforms/xxx/file.xml
+    """
+    try:
+        if not storage_service.file_exists(path):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found"
+            )
+        
+        file_data = storage_service.download_file(path)
+        
+        if path.endswith('.xlsx'):
+            content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        elif path.endswith('.xml'):
+            content_type = "application/xml"
+        elif path.endswith('.jpg') or path.endswith('.jpeg'):
+            content_type = "image/jpeg"
+        elif path.endswith('.png'):
+            content_type = "image/png"
+        else:
+            content_type = "application/octet-stream"
+        
+        filename = path.split('/')[-1]
+        
+        return StreamingResponse(
+            BytesIO(file_data),
+            media_type=content_type,
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
         )
-    
-    url = storage_service.get_file_url(object_name, expires=3600)
-    
-    return {"download_url": url}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error downloading file: {str(e)}"
+        )
