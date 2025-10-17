@@ -11,12 +11,14 @@ from app.crud import email_verifications as crud_email_verifications
 from app.core.security import create_access_token
 from app.core.config import settings
 from app.schemas.email_verifications import EmailVerificationCreate, EmailVerificationUpdate
-from app.core.dependencies import get_current_active_user  # AJOUTER CETTE LIGNE
+from app.core.dependencies import get_current_active_user  
+from app.services.email import email_service
 
 router = APIRouter()
 
+
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(user_in: UserCreate, db: Session = Depends(get_db)):
+async def register(user_in: UserCreate, db: Session = Depends(get_db)):
     user = crud_users.get_by_email(db, email=user_in.email)
     if user:
         raise HTTPException(
@@ -33,6 +35,15 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         expires_at=datetime.utcnow() + timedelta(hours=24)
     )
     crud_email_verifications.create(db, obj_in=verification)
+    
+    try:
+        await email_service.send_verification_email(
+            email=user.email,
+            user_name=user.full_name,
+            token=verification_token
+        )
+    except Exception as e:
+        print(f"Error sending verification email: {e}")
     
     return user
 
