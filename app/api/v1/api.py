@@ -3,7 +3,7 @@ from app.api.v1.endpoints import (
     auth, users, projects, forms, submissions,
     enumerators, form_access, devices, form_versions,
     submission_reviews, media_files, audit_logs,
-    upload
+    upload, openrosa
 )
 
 api_router = APIRouter()
@@ -21,3 +21,4 @@ api_router.include_router(media_files.router, prefix="/media-files", tags=["medi
 api_router.include_router(devices.router, prefix="/devices", tags=["devices"])
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit-logs"])
 api_router.include_router(upload.router, prefix="/upload", tags=["upload"]) 
+api_router.include_router(openrosa.router, prefix="/openrosa", tags=["openrosa"])
