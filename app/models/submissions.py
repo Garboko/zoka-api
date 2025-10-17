@@ -1,6 +1,6 @@
 from sqlalchemy import String, Boolean, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from app.database.session import Base
 
 class Submission(Base):
@@ -10,7 +10,7 @@ class Submission(Base):
     form_id: Mapped[str] = mapped_column(String(36), ForeignKey("forms.id", ondelete="CASCADE"), index=True)
     enumerator_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("enumerators.id"), index=True, nullable=True)
     submission_data: Mapped[dict] = mapped_column(JSON, nullable=False)
-    submitted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    submitted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
     validated: Mapped[bool] = mapped_column(Boolean, default=False)
     synced: Mapped[bool] = mapped_column(Boolean, default=True)
     
