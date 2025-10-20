@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     BACKEND_CORS_ORIGINS: list
 
+    # Logging
+    LOG_LEVEL: str = "INFO"  
+
     # MinIO Configuration
     MINIO_ENDPOINT: str = "zoka-minio:9000"
     MINIO_EXTERNAL_ENDPOINT: str = "localhost:9000"
@@ -48,6 +51,3 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
-
-
-
